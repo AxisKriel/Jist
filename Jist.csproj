@@ -21,6 +21,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Externalconsole>true</Externalconsole>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -234,6 +236,6 @@
   </Target>
   -->
   <Target Name="AfterBuild">
-    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(SolutionDir)\..\..\ServerInstance4.2\ServerPlugins" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(SolutionDir)\..\ServerInstance4.2\ServerPlugins" />
   </Target>
 </Project>
