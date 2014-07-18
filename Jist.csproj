@@ -1,0 +1,239 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{EE9A63C2-542D-4D59-8EC3-9D53C894EA54}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Wolfje.Plugins.Jist</RootNamespace>
+    <AssemblyName>Wolfje.Plugins.Jist</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Externalconsole>true</Externalconsole>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Collections.Immutable">
+      <HintPath>packages\Microsoft.Bcl.Immutable.1.1.20-beta\lib\portable-net45+win8\System.Collections.Immutable.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core" />
+    <Reference Include="System.Reflection.Metadata">
+      <HintPath>packages\Microsoft.Bcl.Metadata.1.0.11-alpha\lib\portable-net45+win8\System.Reflection.Metadata.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Extensions\TShockCommand.Extensions.cs" />
+    <Compile Include="Extensions\TSPlayer.Extensions.cs" />
+    <Compile Include="Extensions\Type.Extensions.cs" />
+    <Compile Include="Framework\JavascriptFunctionAttribute.cs" />
+    <Compile Include="Framework\JavascriptProvidesAttribute.cs" />
+    <Compile Include="Framework\JavscriptFunction.cs" />
+    <Compile Include="Framework\ScriptContainer.cs" />
+    <Compile Include="Framework\JistScript.cs" />
+    <Compile Include="JistEngine.cs" />
+    <Compile Include="JistPlugin.cs" />
+    <Compile Include="Framework\PreprocessorDirectives.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Runtime\Jint\Jint\DeclarationBindingType.cs" />
+    <Compile Include="Runtime\Jint\Jint\Engine.cs" />
+    <Compile Include="Runtime\Jint\Jint\EvalCodeScope.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Argument\ArgumentsObject.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Array\ArrayConstructor.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Array\ArrayInstance.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Array\ArrayPrototype.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Boolean\BooleanConstructor.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Boolean\BooleanInstance.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Boolean\BooleanPrototype.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Date\DateConstructor.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Date\DateInstance.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Date\DatePrototype.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Error\ErrorConstructor.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Error\ErrorInstance.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Error\ErrorPrototype.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Function\BindFunctionInstance.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Function\EvalFunctionInstance.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Function\FunctionConstructor.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Function\FunctionInstance.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Function\FunctionPrototype.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Function\FunctionShim.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Function\ScriptFunctionInstance.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Function\ThrowTypeError.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Global\GlobalObject.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\ICallable.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\IConstructor.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\IPrimitiveInstance.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Json\JsonInstance.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Json\JsonParser.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Json\JsonSerializer.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\JsValue.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Math\MathInstance.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Null.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Number\Dtoa\CachePowers.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Number\Dtoa\DiyFp.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Number\Dtoa\DoubleHelper.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Number\Dtoa\FastDtoa.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Number\Dtoa\FastDtoaBuilder.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Number\Dtoa\NumberExtensions.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Number\NumberConstructor.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Number\NumberInstance.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Number\NumberPrototype.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Object\ObjectConstructor.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Object\ObjectInstance.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Object\ObjectPrototype.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\RegExp\RegExpConstructor.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\RegExp\RegExpInstance.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\RegExp\RegExpPrototype.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\String\StringConstructor.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\String\StringInstance.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\String\StringPrototype.cs" />
+    <Compile Include="Runtime\Jint\Jint\Native\Undefined.cs" />
+    <Compile Include="Runtime\Jint\Jint\Options.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\ArrayExpression.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\AssignmentExpression.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\BinaryExpression.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\BlockStatement.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\BreakStatement.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\CallExpression.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\CatchClause.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\ConditionalExpression.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\ContinueStatement.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\DebuggerStatement.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\DoWhileStatement.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\EmptyStatement.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\Expression.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\ExpressionStatement.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\ForInStatement.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\ForStatement.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\FunctionDeclaration.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\FunctionExpression.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\Identifier.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\IfStatement.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\IPropertyKeyExpression.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\LabeledStatement.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\Literal.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\LogicalExpression.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\MemberExpression.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\NewExpression.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\ObjectExpression.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\Program.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\Property.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\RegExpLiteral.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\ReturnStatement.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\SequenceExpression.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\Statement.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\SwitchCase.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\SwitchStatement.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\SyntaxNode.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\SyntaxNodes.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\ThisExpression.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\ThrowStatement.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\TryStatement.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\UnaryExpression.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\UpdateExpression.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\VariableDeclaration.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\VariableDeclarator.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\WhileStatement.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Ast\WithStatement.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Comment.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\IFunctionDeclaration.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\IFunctionScope.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\IVariableScope.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\JavascriptParser.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Loc.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Messages.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\ParserException.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\ParserExtensions.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\ParserOptions.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Position.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\State.cs" />
+    <Compile Include="Runtime\Jint\Jint\Parser\Token.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\Arguments.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\Completion.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\Descriptors\PropertyDescriptor.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\Descriptors\Specialized\ClrAccessDescriptor.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\Descriptors\Specialized\FieldInfoDescriptor.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\Descriptors\Specialized\IndexDescriptor.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\Descriptors\Specialized\PropertyInfoDescriptor.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\Environments\Binding.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\Environments\DeclarativeEnvironmentRecord.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\Environments\EnvironmentRecord.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\Environments\ExecutionContext.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\Environments\LexicalEnvironment.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\Environments\ObjectEnvironmentRecord.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\ExpressionIntepreter.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\Interop\ClrFunctionInstance.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\Interop\DefaultTypeConverter.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\Interop\DelegateWrapper.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\Interop\GetterFunctionInstance.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\Interop\IObjectConverter.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\Interop\IObjectWrapper.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\Interop\ITypeConverter.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\Interop\MethodInfoFunctionInstance.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\Interop\NamespaceReference.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\Interop\ObjectWrapper .cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\Interop\SetterFunctionInstance.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\Interop\TypeReference.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\Interop\TypeReferencePrototype.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\JavaScriptException.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\References\Reference.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\StatementInterpreter.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\StatementsCountOverflowException.cs" />
+    <Compile Include="Runtime\Jint\Jint\Runtime\TypeConverter.cs" />
+    <Compile Include="Runtime\Jint\Jint\StrictModeScope.cs" />
+    <Compile Include="ScriptLog.cs" />
+    <Compile Include="stdlib\Framework\IStdLib.cs" />
+    <Compile Include="stdlib\std.cs" />
+    <Compile Include="stdlib\Framework\stdlib_base.cs" />
+    <Compile Include="stdlib\tshock.cs" />
+    <Compile Include="stdlib\stdtask.cs" />
+    <Compile Include="Extensions\ObjectArray.Extensions.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="References\TShock\TerrariaServerAPI\TerrariaAPI-Server.csproj">
+      <Project>{549a7941-d9c9-4544-bac8-d9eeeab4d777}</Project>
+      <Name>TerrariaAPI-Server</Name>
+    </ProjectReference>
+    <ProjectReference Include="References\TShock\TShockAPI\TShockAPI.csproj">
+      <Project>{49606449-072b-4cf5-8088-aa49da586694}</Project>
+      <Name>TShockAPI</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <Target Name="AfterBuild">
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(SolutionDir)\..\..\ServerInstance4.2\ServerPlugins" />
+  </Target>
+</Project>
