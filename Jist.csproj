@@ -48,10 +48,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConsoleEx.cs" />
     <Compile Include="Extensions\TShockCommand.Extensions.cs" />
     <Compile Include="Extensions\TSPlayer.Extensions.cs" />
     <Compile Include="Extensions\Type.Extensions.cs" />
     <Compile Include="Framework\JavascriptFunctionAttribute.cs" />
+    <Compile Include="Framework\JavascriptFunctionsNeededEventArgs.cs" />
     <Compile Include="Framework\JavascriptProvidesAttribute.cs" />
     <Compile Include="Framework\JavscriptFunction.cs" />
     <Compile Include="Framework\ScriptContainer.cs" />
@@ -213,9 +215,6 @@
     <Compile Include="stdlib\tshock.cs" />
     <Compile Include="stdlib\stdtask.cs" />
     <Compile Include="Extensions\ObjectArray.Extensions.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="References\TShock\TerrariaServerAPI\TerrariaAPI-Server.csproj">

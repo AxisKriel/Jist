@@ -16,11 +16,6 @@ namespace Wolfje.Plugins.Jist.stdlib {
 			
 		}
 
-		public override void SubmitFunctions()
-		{
-			engine.CreateScriptFunctions(this.GetType(), this);
-		}
-
 		/// <summary>
 		/// JS API: random(from, to) : double
 		/// 

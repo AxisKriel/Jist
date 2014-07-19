@@ -8,6 +8,9 @@ using Jint;
 using Jint.Native;
 using System.Linq.Expressions;
 using System.IO;
+using TerrariaApi.Server;
+using Jint.Runtime.Descriptors;
+using Jint.Runtime;
 
 namespace Wolfje.Plugins.Jist {
 	/// <summary>
@@ -19,6 +22,11 @@ namespace Wolfje.Plugins.Jist {
 		protected Jint.Engine jsEngine;
 		protected List<string> providedPackages;
 		protected ScriptContainer scriptContainer;
+        protected int totalLoadingItems = 0;
+        protected int doneItems = 0;
+        protected int oldPercent = 0;
+
+        internal event EventHandler<PercentChangedEventArgs> PercentChanged;
 
 		/*
 		 * Standard library references.
@@ -28,47 +36,82 @@ namespace Wolfje.Plugins.Jist {
 		 */
 		internal stdlib.std stdLib;
 		internal stdlib.tshock stdTshock;
+        internal stdlib.stdtask stdTask;
 
 		public JistEngine(JistPlugin parent)
 		{
 			this.providedPackages = new List<string>();
 			this.plugin = parent;
 			this.scriptContainer = new ScriptContainer(this);
+            ServerApi.Hooks.GamePostInitialize.Register(plugin, Game_PostInitialize);
+            PercentChanged += (sender, args) => {
+                ConsoleEx.WriteBar(args);
+            };
 		}
 
-		public void LoadEngine()
+        /// <summary>
+        /// Occurs when TerrariaServer has loaded the map.
+        /// </summary>
+        protected async void Game_PostInitialize(EventArgs args)
+        {
+            await LoadEngineAsync();
+        }
+
+        protected void RaisePercentChangedEvent(string label)
+        {
+            PercentChangedEventArgs args = new PercentChangedEventArgs();
+            double percentComplete = (double)++doneItems / totalLoadingItems * 100;
+
+            if (oldPercent != (int)percentComplete) {
+                args.Percent = (int)percentComplete;
+                args.Label = label;
+
+                if (PercentChanged != null) {
+                    PercentChanged(this, args);
+                }
+                oldPercent = (int)percentComplete;
+            }
+        }
+
+		public async Task LoadEngineAsync()
 		{
-			this.jsEngine = new Engine(o => { o.AllowClr(); });
+			totalLoadingItems = ScriptsCount() * 2 + 5;
+            this.jsEngine = new Engine(o => { o.AllowClr(); });
+            RaisePercentChangedEvent("Engine");
+            
             /*
              * Load the standard library collection.
              */
-			LoadLibraries();
+            await Task.Run(() => LoadLibraries());
+            RaisePercentChangedEvent("Libraries");
+
             /*
              * Enumerate the libraries and ask them to submit
              * their functions to the javascript runtime. All
              * functions should be available before any scripts
              * load.
              */
-			CreateScriptFunctions();
+            await Task.Run(() => CreateScriptFunctions());
+            RaisePercentChangedEvent("Functions");
+
             /*
              * Load all scripts from disk, and preprocess them.
              * Result should be a reference-counted list of sc-
              * ripts that need to be executed in order.
              */
-			LoadScripts();
+            await Task.Run(() => LoadScripts());
+            RaisePercentChangedEvent("Scripts");
+
             /*
              * Engine executes all scripts only once.  The are
              * responsible for setting themselves up in the JS
              * global environment when this happens, subscrib-
              * ing to hooks, enlisting aliases, etc.
              */
-			ExecuteScripts();
-		}
+            await Task.Run(() => ExecuteScripts());
+            RaisePercentChangedEvent("Execute");
 
-		public async Task LoadEngineAsync()
-		{
-			this.jsEngine = new Engine(o => { o.AllowClr(); });
-			await CreateScriptFunctionsAsync();
+            Console.WriteLine();
 		}
 		
 		/// <summary>
@@ -79,10 +122,11 @@ namespace Wolfje.Plugins.Jist {
 		{
 			LoadLibrary((stdLib = new stdlib.std(this)));
 			LoadLibrary((stdTshock = new stdlib.tshock(this)));
+            LoadLibrary((stdTask = new stdlib.stdtask(this)));
 		}
 
 		/// <summary>
-		/// Causes all instances of stdlib_base to submit all
+		/// Causes the instance of stdlib_base to submit all
 		/// its functions to the JS function cache.
 		/// </summary>
 		public void LoadLibrary(stdlib.stdlib_base lib)
@@ -90,8 +134,17 @@ namespace Wolfje.Plugins.Jist {
 			if (lib == null) {
 				return;
 			}
-			lib.SubmitFunctions();
+            CreateScriptFunctions(lib.GetType(), lib);
 		}
+
+        protected int ScriptsCount()
+        {
+            try {
+                return Directory.EnumerateFiles("serverscripts", "*.js").Count();
+            } catch {
+                return 0;
+            }
+        }
 
 		/// <summary>
 		/// Loads all scripts from the serverscripts directory, and
@@ -101,6 +154,7 @@ namespace Wolfje.Plugins.Jist {
 		{
 			foreach (var file in Directory.EnumerateFiles("serverscripts", "*.js")) {
 				LoadScript(Path.GetFileName(file));
+                RaisePercentChangedEvent("Scripts");
 			}
 		}
 
@@ -148,6 +202,34 @@ namespace Wolfje.Plugins.Jist {
 			return content;
 		}
 
+        /// <summary>
+        /// Executes a snippet of javascript in the
+        /// running jist instance and returns any 
+        /// result in JSON format.
+        /// </summary>
+        public string Eval(string snippet)
+        {
+            JsValue returnValue = default(JsValue);
+
+            if (jsEngine == null || string.IsNullOrEmpty(snippet) == true) {
+                return "undefined";
+            }
+            try {
+                returnValue = jsEngine.GetValue(jsEngine.Execute(snippet).GetCompletionValue());
+                if (returnValue.Type == Types.None
+                    || returnValue.Type == Types.Null
+                    || returnValue.Type == Types.Undefined) {
+                    return "undefined";
+                }
+            } catch (Exception ex) {
+                ScriptLog.ErrorFormat("eval", "Error executing snippet:" + ex.Message);
+                return "undefined";
+            }
+
+            return TypeConverter.ToString(jsEngine.Json.Stringify(jsEngine.Json, 
+                Arguments.From(returnValue, Undefined.Instance, "  ")));
+        }
+
 		/// <summary>
 		/// Executes a script, and returns it's completion value.
 		/// </summary>
@@ -174,11 +256,17 @@ namespace Wolfje.Plugins.Jist {
 			foreach (JistScript script in scriptContainer.Scripts.OrderByDescending(i => i.ReferenceCount)) {
 				try {
 					ExecuteScript(script);
+                    RaisePercentChangedEvent("Execute");
 				} catch (Exception ex) {
 					ScriptLog.ErrorFormat(script.FilePathOrUri, "Execution error: " + ex.Message);
 				}
 			}
 		}
+
+        public IDictionary<string, PropertyDescriptor> DumpGlobalEnvironment()
+        {
+            return jsEngine.Global.Properties;
+        }
 
 		/// <summary>
 		/// Creates Javascript function delegates for the type specified, and 
@@ -219,12 +307,8 @@ namespace Wolfje.Plugins.Jist {
 			 * look for JS methods in the type
 			 */
 			foreach (var jsFunction in type.GetMethods().Where(i => i.GetCustomAttributes(true).OfType<JavascriptFunctionAttribute>().Count() > 0)) {
-				if (instance == null && jsFunction.IsStatic == false) {
-					continue;
-					//throw new ArgumentException("A javascript function must be applied to static fields when using attributes to define JS functions");
-				}
-
-				if ((jsAttribute = jsFunction.GetCustomAttributes(true).OfType<JavascriptFunctionAttribute>().FirstOrDefault()) == null) {
+				if (instance == null && jsFunction.IsStatic == false
+                    || (jsAttribute = jsFunction.GetCustomAttributes(true).OfType<JavascriptFunctionAttribute>().FirstOrDefault()) == null) {
 					continue;
 				}
 
@@ -262,28 +346,8 @@ namespace Wolfje.Plugins.Jist {
 		/// </summary>
 		protected void CreateScriptFunctions()
 		{
-			/*
-			 * Loop through all types in all assemblies that are not loaded
-			 * inside the GAC.
-			 */
-			foreach (var type in AppDomain.CurrentDomain.GetAssemblies().Where(i => i.GlobalAssemblyCache == false).SelectMany(i => i.GetTypes())) {
-				CreateScriptFunctions(type, null);
-			}
-		}
-
-		/// <summary>
-		/// Loops through all types in the app domain and creates functions in 
-		/// the engine for methods that have a JavascriptFunction attribute.
-		/// </summary>
-		protected async Task CreateScriptFunctionsAsync()
-		{
-			/*
-			 * Loop through all types in all assemblies that is not loaded
-			 * inside the GAC.
-			 */
-			foreach (var type in AppDomain.CurrentDomain.GetAssemblies().Where(i => i.GlobalAssemblyCache == false).SelectMany(i => i.GetTypes())) {
-				await CreateScriptFunctionsAsync(type, null);
-			}
+            JistPlugin.RequestExternalFunctions();
+            jsEngine.SetValue("alert", new Action<object>(Console.WriteLine));
 		}
 
 		/// <summary>
@@ -314,6 +378,7 @@ namespace Wolfje.Plugins.Jist {
 			if (disposing) {
 				this.stdLib.Dispose();
 				this.stdTshock.Dispose();
+                ServerApi.Hooks.GamePostInitialize.Deregister(plugin, Game_PostInitialize);
 			}
 		}
 

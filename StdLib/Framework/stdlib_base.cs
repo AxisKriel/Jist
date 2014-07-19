@@ -21,11 +21,6 @@ namespace Wolfje.Plugins.Jist.stdlib {
 			this.engine = engine;
 		}
 
-		public virtual void SubmitFunctions()
-		{
-			engine.CreateScriptFunctions(this.GetType(), this);
-		}
-
 		#region IDisposable Members
 
 		public void Dispose()

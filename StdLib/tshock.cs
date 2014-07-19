@@ -23,11 +23,6 @@ namespace Wolfje.Plugins.Jist.stdlib {
 			this.Provides = "tshock";
 		}
 
-		public override void SubmitFunctions()
-		{
-			engine.CreateScriptFunctions(this.GetType(), this);
-		}
-
 		/// <summary>
 		/// JS function: tshock_get_player(player) : TSPlayer
 		/// 
@@ -209,7 +204,7 @@ namespace Wolfje.Plugins.Jist.stdlib {
 				return;
 			}
 
-			msg = msg.ToString();
+            msg = Message.ToString();
 			if (string.IsNullOrEmpty(msg) == true) {
 				return;
 			}
@@ -225,7 +220,7 @@ namespace Wolfje.Plugins.Jist.stdlib {
 		/// Colours may be in R,G,B or #html format.
 		/// </summary>
 		[JavascriptFunction("msg_colour", "tshock_msg_colour")]
-		protected void MessageWithColour(object Colour, object Player, object Message)
+		public void MessageWithColour(object Colour, object Player, object Message)
 		{
 			TShockAPI.TSPlayer ply = null;
 			string msg = Message.ToString();
@@ -265,6 +260,18 @@ namespace Wolfje.Plugins.Jist.stdlib {
 		{
 			BroadcastWithColour("#f00", Message);
 		}
+
+        /// <summary>
+        /// javascript function: tshock_server()
+        /// 
+        /// Returns an instance of the tshock server
+        /// player object.
+        /// </summary>
+        [JavascriptFunction("tshock_server")]
+        public TShockAPI.TSPlayer ServerPlayer()
+        {
+            return TShockAPI.TSPlayer.Server;
+        }
 
 		/// <summary>
 		/// Parses colour from a range of input types and returns a strongly-

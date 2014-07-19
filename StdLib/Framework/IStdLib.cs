@@ -11,6 +11,6 @@ namespace Wolfje.Plugins.Jist.stdlib {
 	/// Delegates that classes implementing stdlib_base must provide these methods.
 	/// </summary>
 	public interface IStdLib {
-		void SubmitFunctions();
+
 	}
 }
