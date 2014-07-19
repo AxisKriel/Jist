@@ -11,6 +11,7 @@ using System.IO;
 using TerrariaApi.Server;
 using Jint.Runtime.Descriptors;
 using Jint.Runtime;
+using Jint.Native.Json;
 
 namespace Wolfje.Plugins.Jist {
 	/// <summary>
@@ -34,9 +35,9 @@ namespace Wolfje.Plugins.Jist {
 		 * These hold all the javascript functions that jist
 		 * provides in its base packages.
 		 */
-		internal stdlib.std stdLib;
-		internal stdlib.tshock stdTshock;
-        internal stdlib.stdtask stdTask;
+		public stdlib.std stdLib;
+        public stdlib.tshock stdTshock;
+        public stdlib.stdtask stdTask;
 
 		public JistEngine(JistPlugin parent)
 		{
@@ -75,6 +76,10 @@ namespace Wolfje.Plugins.Jist {
 
 		public async Task LoadEngineAsync()
 		{
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine(" * Jist is loading");
+            Console.ResetColor();
+
 			totalLoadingItems = ScriptsCount() * 2 + 5;
             this.jsEngine = new Engine(o => { o.AllowClr(); });
             RaisePercentChangedEvent("Engine");
@@ -111,6 +116,10 @@ namespace Wolfje.Plugins.Jist {
             await Task.Run(() => ExecuteScripts());
             RaisePercentChangedEvent("Execute");
 
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine(" * Loaded {0} scripts", ScriptsCount());
+            Console.ResetColor();
             Console.WriteLine();
 		}
 		
@@ -371,6 +380,7 @@ namespace Wolfje.Plugins.Jist {
 		public void Dispose()
 		{
 			Dispose(true);
+            GC.SuppressFinalize(this);
 		}
 
 		protected virtual void Dispose(bool disposing)

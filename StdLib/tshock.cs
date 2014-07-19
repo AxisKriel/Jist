@@ -13,7 +13,7 @@ namespace Wolfje.Plugins.Jist.stdlib {
 	/// 
 	/// Provides scripting API into the various mechanisms of TShock.
 	/// </summary>
-	partial class tshock : stdlib_base {
+	public partial class tshock : stdlib_base {
 		protected readonly Regex htmlColourRegex = new Regex(@"#([0-9a-f][0-9a-f])([0-9a-f][0-9a-f])([0-9a-f][0-9a-f])", RegexOptions.IgnoreCase);
 		protected readonly Regex htmlColourRegexShort = new Regex(@"#([0-9a-f])([0-9a-f])([0-9a-f])", RegexOptions.IgnoreCase);
 		protected readonly Regex rgbColourRegex = new Regex(@"((\d*),(\d*),(\d*))", RegexOptions.IgnoreCase);

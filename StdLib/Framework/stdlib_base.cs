@@ -26,15 +26,11 @@ namespace Wolfje.Plugins.Jist.stdlib {
 		public void Dispose()
 		{
 			Dispose(true);
+            GC.SuppressFinalize(this);
 		}
 
 		protected virtual void Dispose(bool disposing)
 		{
-			if (disposing) {
-				
-			}
-
-			engine = null;
 		}
 
 		#endregion

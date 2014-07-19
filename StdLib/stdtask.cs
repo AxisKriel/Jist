@@ -15,7 +15,7 @@ namespace Wolfje.Plugins.Jist.stdlib {
 	/// after a certain period, or recurring over and over 
 	/// again.
 	/// </summary>
-	class stdtask : stdlib_base {
+	public class stdtask : stdlib_base {
         protected Timer oneSecondTimer;
         private List<RecurringFunction> recurList;
 
