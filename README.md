@@ -35,3 +35,9 @@ The primary reason for Javascript is the Jint runtime, and the dynamic features 
 ```
 jist.cmd                Has permission to execute the /jist command
 ```
+
+## To do list
+
+* Time code is exceptionally dodgy due to how bad the Main.time mechanism is
+* TShock hooking support, hook on non high-concurrent events
+* TSAPI hooking support, hook on non high-concurrent events
