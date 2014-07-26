@@ -5,33 +5,47 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using Wolfje.Plugins.Jist.Framework;
 
 namespace Wolfje.Plugins.Jist.stdlib {
-	public class std : stdlib_base {
-		protected readonly Random randomGenerator = new Random();
-		protected readonly object __rndLock = new object();
+    public class std : stdlib_base {
+        protected readonly Random randomGenerator = new Random();
+        protected readonly object __rndLock = new object();
 
-		public std(JistEngine engine)
-			: base(engine)
-		{
+        public std(JistEngine engine)
+            : base(engine)
+        {
         }
 
-		/// <summary>
-		/// JS API: random(from, to) : double
-		/// 
-		/// Generates a random number between the ranges specified.
-		/// </summary>
-		[JavascriptFunction("random", "jist_random")]
-		public double Random(double From, double To)
-		{
-			int from = Convert.ToInt32(From);
-			int to = Convert.ToInt32(To);
-			lock (__rndLock) {
-				return randomGenerator.Next(from, to);
-			}
-		}
+        /// <summary>
+        /// JS API: random(from, to) : double
+        /// tts
+        /// Generates a random number between the ranges specified.
+        /// </summary>
+        [JavascriptFunction("random", "jist_random")]
+        public double Random(double From, double To)
+        {
+            int from = Convert.ToInt32(From);
+            int to = Convert.ToInt32(To);
+            lock (__rndLock) {
+                return randomGenerator.Next(from, to);
+            }
+        }
+
+        /// <summary>
+        /// Repeats the provided function n
+        /// number of times.
+        /// </summary>
+        [JavascriptFunction("jist_repeat")]
+        public void Repeat(int times, JsValue func)
+        {
+            for (int i = 0; i < times; i++) {
+                engine.CallFunction(func, null, i);
+            }
+        }
 
         /// <summary>
         /// Javascript function: describe(object) : string
@@ -87,5 +101,7 @@ namespace Wolfje.Plugins.Jist.stdlib {
                 return -1;
             }
         }
-	}
+
+
+    }
 }

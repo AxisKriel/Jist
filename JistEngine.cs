@@ -388,6 +388,7 @@ namespace Wolfje.Plugins.Jist {
 			if (disposing) {
 				this.stdLib.Dispose();
 				this.stdTshock.Dispose();
+                this.stdTask.Dispose();
                 ServerApi.Hooks.GamePostInitialize.Deregister(plugin, Game_PostInitialize);
 			}
 		}

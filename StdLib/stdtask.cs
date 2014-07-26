@@ -17,23 +17,52 @@ namespace Wolfje.Plugins.Jist.stdlib {
 	/// </summary>
 	public class stdtask : stdlib_base {
         protected Timer oneSecondTimer;
+        protected Timer highPrecisionTimer;
         private List<RecurringFunction> recurList;
+        private List<RunAt> runAtList;
 
         /*
          * Lock on this to prevent enumerator errors writing to
          * an enumerated object.
          */
-        static readonly object __recurringLock = new object();
+        private readonly object __recurringLock = new object();
+        private readonly object __runAtLock = new object();
 
 		public stdtask(JistEngine engine) : base(engine)
 		{
+            this.highPrecisionTimer = new Timer(100);
 			this.oneSecondTimer = new Timer(1000);
             this.oneSecondTimer.Elapsed += oneSecondTimer_Elapsed;
+            this.highPrecisionTimer.Elapsed += highPrecisionTimer_Elapsed;
             this.oneSecondTimer.Start();
             this.recurList = new List<RecurringFunction>();
+            this.runAtList = new List<RunAt>();
+            this.highPrecisionTimer.Start();
 		}
 
-        protected async void oneSecondTimer_Elapsed(object sender, ElapsedEventArgs e)
+        private void highPrecisionTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            double time = 0;
+            System.Threading.Interlocked.Exchange(ref time, Terraria.Main.time);
+            
+
+            if (time > 0 && time < 200) {
+                for (int i = 0; i < runAtList.Count; i++) {
+                    RunAt at;
+                    lock (__runAtLock) {
+                        at = runAtList.ElementAtOrDefault(i);
+                        if (at == null) {
+                            continue;
+                        }
+
+                        at.ExecutedInIteration = false;
+                    }
+                }
+            //    TShockAPI.Log.ConsoleInfo("* Execution iterators reset.");
+            }
+        }
+
+        protected void oneSecondTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
             for (int i = 0; i < recurList.Count; i++) {
                 RecurringFunction func;
@@ -46,12 +75,36 @@ namespace Wolfje.Plugins.Jist.stdlib {
                 }
 
                 try {
-                    await func.ExecuteAndRecurAsync();
+                    func.ExecuteAndRecur();
                 } catch (Exception ex) {
                     ScriptLog.ErrorFormat("recurring", "Error on recurring rule: " + ex.Message);
                 }
             }
+
+            for (int i = 0; i < runAtList.Count; i++) {
+                RunAt at;
+                lock (__runAtLock) {
+                    at = runAtList.ElementAtOrDefault(i);
+                }
+
+                if (at == null
+                    || engine == null
+                    || Terraria.Main.time <= at.AtTime
+                    || at.ExecutedInIteration == true) {
+                    continue;
+                }
+
+                try {
+                    engine.CallFunction(at.Func, at);
+                } catch (Exception ex) {
+                    ScriptLog.ErrorFormat("recurring", "Error on recurring rule: " + ex.Message);
+                } finally {
+                    at.ExecutedInIteration = true;
+                }
+            }
         }
+
+       
 
         internal List<RecurringFunction> DumpTasks()
         {
@@ -62,8 +115,14 @@ namespace Wolfje.Plugins.Jist.stdlib {
 		{
 			base.Dispose(disposing);
 			if (disposing == true) {
+                lock (__recurringLock) {
+                    this.recurList.Clear();
+                }
                 this.oneSecondTimer.Stop();
 				this.oneSecondTimer.Dispose();
+
+                this.highPrecisionTimer.Stop();
+                this.highPrecisionTimer.Dispose();
 			}
 		}
 
@@ -71,10 +130,22 @@ namespace Wolfje.Plugins.Jist.stdlib {
 		/// Runs a javascript function after waiting.  Similar to setTimeout()
 		/// </summary>
 		[JavascriptFunction("run_after", "jist_run_after")]
-		public async void RunAfterAsync(int AfterMilliseconds, JsValue Func, params object[] args) {
-            await Task.Delay((int)AfterMilliseconds);
-            engine.CallFunction(Func, null, args);
+		public void RunAfterAsync(int AfterMilliseconds, JsValue Func, params object[] args) {
+            Task.Delay((int)AfterMilliseconds).ContinueWith((task) => {
+                engine.CallFunction(Func, null, args);
+            });
 		}
+
+        /// <summary>
+        /// Adds a javascript function to be run every hours minutes and seconds specified.
+        /// </summary>
+        [JavascriptFunction("run_at", "jist_run_at")]
+        public void AddAt(int Hours, int Minutes, Jint.Native.JsValue Func)
+        {
+            lock (__runAtLock) {
+                runAtList.Add(new RunAt(Hours, Minutes, Func));
+            }
+        }
 
         /// <summary>
         /// Adds a javascript function to be run every hours minutes and seconds specified.
@@ -87,6 +158,47 @@ namespace Wolfje.Plugins.Jist.stdlib {
             }
         }
 	}
+
+    /// <summary>
+    /// Holds a javascript function to be run every time
+    /// the game hits a certain time in the terraria world.
+    /// </summary>
+    class RunAt {
+        public Guid RunAtID { get; set; }
+        public double AtTime { get; set; }
+        public JsValue Func { get; set; }
+        public bool Enabled { get; set; }
+        public bool ExecutedInIteration { get; set; }
+
+        public static double GetRawTime(int hours, int minutes)
+        {
+            decimal time = hours + minutes / 60.0m;
+            time -= 4.50m;
+            if (time < 0.00m)
+                time += 24.00m;
+            if (time >= 15.00m) {
+                return (double)((time - 15.00m) * 3600.0m);
+            } else {
+                return (double)(time * 3600.0m);
+            }
+        }
+
+        public RunAt(double AtTime, JsValue func)
+        {
+            this.RunAtID = new Guid();
+            this.AtTime = AtTime;
+            this.Func = func;
+            this.Enabled = true;
+        }
+
+        public RunAt(int hours, int minutes, JsValue func)
+        {
+            this.RunAtID = new Guid();
+            this.AtTime = GetRawTime(hours, minutes);
+            this.Func = func;
+            this.Enabled = true;
+        }
+    }
 
     /// <summary>
     /// Holds a Javascript recurring function and how often it executes
@@ -136,7 +248,7 @@ namespace Wolfje.Plugins.Jist.stdlib {
         /// time to, and updates the next run time to the next
         /// recurance.
         /// </summary>
-        public async Task ExecuteAndRecurAsync()
+        public void ExecuteAndRecur()
         {
             if (DateTime.UtcNow < this.NextRunTime
                 || Jist.JistPlugin.Instance == null) {
@@ -144,9 +256,7 @@ namespace Wolfje.Plugins.Jist.stdlib {
             }
 
             try {
-                await Task.Factory.StartNew(() => {
-                    JistPlugin.Instance.CallFunction(Function, this);
-                });
+                JistPlugin.Instance.CallFunction(Function, this);
             } catch (Exception ex) {
                 ScriptLog.ErrorFormat("recurring", "Error occured on a recurring task function: " + ex.Message);
             } finally {
@@ -160,12 +270,12 @@ namespace Wolfje.Plugins.Jist.stdlib {
         /// </summary>
         protected void Recur()
         {
-            this.NextRunTime = NextRunTime.Add(TimeSpan.FromSeconds(this.Seconds));
+            this.NextRunTime = DateTime.UtcNow.Add(TimeSpan.FromSeconds(this.Seconds));
         }
 
         public override string ToString()
         {
-            return string.Format("Task {0}: {1} secs, next in {2}", this.RecurrenceID, this.Seconds, this.NextRunTime.Subtract(DateTime.UtcNow));
+            return string.Format("Task {0}: {1} secs, next in {2:hh:mm:ss}", this.RecurrenceID, this.Seconds, this.NextRunTime.Subtract(DateTime.UtcNow));
         }
     }
 }
