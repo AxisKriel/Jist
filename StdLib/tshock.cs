@@ -18,9 +18,52 @@ namespace Wolfje.Plugins.Jist.stdlib {
 		protected readonly Regex htmlColourRegexShort = new Regex(@"#([0-9a-f])([0-9a-f])([0-9a-f])", RegexOptions.IgnoreCase);
 		protected readonly Regex rgbColourRegex = new Regex(@"((\d*),(\d*),(\d*))", RegexOptions.IgnoreCase);
 
-		public tshock(JistEngine engine) : base (engine)
+		public tshock(JistEngine engine) : base(engine)
 		{
 			this.Provides = "tshock";
+		}
+
+		/// <summary>
+		/// Gets a TShock region by its name.
+		/// </summary>
+		[JavascriptFunction("tshock_get_region")]
+		public TShockAPI.DB.Region GetRegion(object region)
+		{
+			TShockAPI.DB.Region reg = null;
+
+			if (region == null) {
+				return null;
+			}
+
+			if (region is TShockAPI.DB.Region) {
+				return region;
+			}
+
+			if (region is string) {
+				try {
+					return TShockAPI.TShock.Regions.GetRegionByName(region as string);
+				} catch {
+					return null;
+				}
+			}
+		
+			return null;
+		}
+
+		[JavascriptFunction("tshock_player_in_region")]
+		public bool IsPlayerInRegion(object playerRef, object regionRef)
+		{
+			TShockAPI.TSPlayer player;
+			TShockAPI.DB.Region region;
+
+			if (player == null
+			    || region == null
+			    || (player = GetPlayer(playerRef)) == null
+			    || (region = GetRegion(regionRef)) == null) {
+				return false;
+			}
+
+			return region.InArea(player.TileX, player.TileY);
 		}
 
 		/// <summary>
@@ -204,7 +247,7 @@ namespace Wolfje.Plugins.Jist.stdlib {
 				return;
 			}
 
-            msg = Message.ToString();
+			msg = Message.ToString();
 			if (string.IsNullOrEmpty(msg) == true) {
 				return;
 			}
@@ -227,7 +270,7 @@ namespace Wolfje.Plugins.Jist.stdlib {
 			Color c = ParseColour(Colour);
 
 			if ((ply = GetPlayer(Player)) == null
-				|| string.IsNullOrEmpty(msg) == true) {
+			    || string.IsNullOrEmpty(msg) == true) {
 				return;
 			}
 
@@ -261,17 +304,17 @@ namespace Wolfje.Plugins.Jist.stdlib {
 			BroadcastWithColour("#f00", Message);
 		}
 
-        /// <summary>
-        /// javascript function: tshock_server()
-        /// 
-        /// Returns an instance of the tshock server
-        /// player object.
-        /// </summary>
-        [JavascriptFunction("tshock_server")]
-        public TShockAPI.TSPlayer ServerPlayer()
-        {
-            return TShockAPI.TSPlayer.Server;
-        }
+		/// <summary>
+		/// javascript function: tshock_server()
+		/// 
+		/// Returns an instance of the tshock server
+		/// player object.
+		/// </summary>
+		[JavascriptFunction("tshock_server")]
+		public TShockAPI.TSPlayer ServerPlayer()
+		{
+			return TShockAPI.TSPlayer.Server;
+		}
 
 		/// <summary>
 		/// Parses colour from a range of input types and returns a strongly-

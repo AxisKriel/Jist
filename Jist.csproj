@@ -21,8 +21,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Externalconsole>true</Externalconsole>
-    <DocumentationFile>
-    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -33,10 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=4.0.2.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\Debug\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Collections.Immutable">
       <HintPath>packages\Microsoft.Bcl.Immutable.1.1.20-beta\lib\portable-net45+win8\System.Collections.Immutable.dll</HintPath>
@@ -50,6 +44,9 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>bin\Debug\Newtonsoft.Json.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConsoleEx.cs" />
@@ -213,20 +210,20 @@
     <Compile Include="Runtime\Jint\Jint\Runtime\TypeConverter.cs" />
     <Compile Include="Runtime\Jint\Jint\StrictModeScope.cs" />
     <Compile Include="ScriptLog.cs" />
-    <Compile Include="stdlib\Framework\IStdLib.cs" />
-    <Compile Include="stdlib\std.cs" />
-    <Compile Include="stdlib\Framework\stdlib_base.cs" />
-    <Compile Include="stdlib\tshock.cs" />
-    <Compile Include="stdlib\stdtask.cs" />
     <Compile Include="Extensions\ObjectArray.Extensions.cs" />
+    <Compile Include="StdLib\std.cs" />
+    <Compile Include="StdLib\stdtask.cs" />
+    <Compile Include="StdLib\tshock.cs" />
+    <Compile Include="StdLib\Framework\IStdLib.cs" />
+    <Compile Include="StdLib\Framework\stdlib_base.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="References\TShock\TerrariaServerAPI\TerrariaAPI-Server.csproj">
-      <Project>{549a7941-d9c9-4544-bac8-d9eeeab4d777}</Project>
+      <Project>{549A7941-D9C9-4544-BAC8-D9EEEAB4D777}</Project>
       <Name>TerrariaAPI-Server</Name>
     </ProjectReference>
     <ProjectReference Include="References\TShock\TShockAPI\TShockAPI.csproj">
-      <Project>{49606449-072b-4cf5-8088-aa49da586694}</Project>
+      <Project>{49606449-072B-4CF5-8088-AA49DA586694}</Project>
       <Name>TShockAPI</Name>
     </ProjectReference>
   </ItemGroup>
@@ -241,4 +238,7 @@
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(SolutionDir)\..\ServerInstance4.2\ServerPlugins" />
   </Target>
+  <ItemGroup>
+    <Folder Include="StdLib\" />
+  </ItemGroup>
 </Project>

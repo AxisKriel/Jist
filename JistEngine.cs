@@ -29,6 +29,8 @@ namespace Wolfje.Plugins.Jist {
 
         internal event EventHandler<PercentChangedEventArgs> PercentChanged;
 
+		protected static string scriptsDir = Path.Combine(Environment.CurrentDirectory, "serverscripts");
+
 		/*
 		 * Standard library references.
 		 * 
@@ -79,6 +81,15 @@ namespace Wolfje.Plugins.Jist {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine(" * Jist is loading");
             Console.ResetColor();
+
+			if (Directory.Exists(scriptsDir) == false) {
+				try {
+					Directory.CreateDirectory(scriptsDir);
+				} catch {
+					TShockAPI.Log.ConsoleError("jist load: Could not create serverscripts directory");
+					return;
+				}
+			}
 
 			totalLoadingItems = ScriptsCount() * 2 + 5;
             this.jsEngine = new Engine(o => { o.AllowClr(); });
@@ -149,7 +160,7 @@ namespace Wolfje.Plugins.Jist {
         protected int ScriptsCount()
         {
             try {
-                return Directory.EnumerateFiles("serverscripts", "*.js").Count();
+				return Directory.EnumerateFiles(scriptsDir, "*.js").Count();
             } catch {
                 return 0;
             }
@@ -161,7 +172,7 @@ namespace Wolfje.Plugins.Jist {
 		/// </summary>
 		protected void LoadScripts()
 		{
-			foreach (var file in Directory.EnumerateFiles("serverscripts", "*.js")) {
+			foreach (var file in Directory.EnumerateFiles(scriptsDir, "*.js")) {
 				LoadScript(Path.GetFileName(file));
                 RaisePercentChangedEvent("Scripts");
 			}
@@ -195,7 +206,7 @@ namespace Wolfje.Plugins.Jist {
 			content.ReferenceCount = 1;
 
 			try {
-				content.Script = File.ReadAllText(Path.Combine("serverscripts", content.FilePathOrUri));
+				content.Script = File.ReadAllText(Path.Combine(scriptsDir, content.FilePathOrUri));
 			} catch (Exception ex) {
 				ScriptLog.ErrorFormat("engine", "Cannot load {0}: {1}", ScriptPath, ex.Message);
 				return null;
