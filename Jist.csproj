@@ -212,6 +212,7 @@
     <Compile Include="ScriptLog.cs" />
     <Compile Include="Extensions\ObjectArray.Extensions.cs" />
     <Compile Include="StdLib\std.cs" />
+    <Compile Include="StdLib\stdhook.cs" />
     <Compile Include="StdLib\stdtask.cs" />
     <Compile Include="StdLib\tshock.cs" />
     <Compile Include="StdLib\Framework\IStdLib.cs" />
@@ -238,7 +239,5 @@
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(SolutionDir)\..\ServerInstance4.2\ServerPlugins" />
   </Target>
-  <ItemGroup>
-    <Folder Include="StdLib\" />
-  </ItemGroup>
+  <ItemGroup />
 </Project>

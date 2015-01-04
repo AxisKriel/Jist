@@ -20,6 +20,7 @@ namespace Wolfje.Plugins.Jist.stdlib {
         protected Timer highPrecisionTimer;
         private List<RecurringFunction> recurList;
         private List<RunAt> runAtList;
+		private List<System.Threading.CancellationTokenSource> runAfterList;
 
         /*
          * Lock on this to prevent enumerator errors writing to
@@ -37,6 +38,7 @@ namespace Wolfje.Plugins.Jist.stdlib {
             this.oneSecondTimer.Start();
             this.recurList = new List<RecurringFunction>();
             this.runAtList = new List<RunAt>();
+			this.runAfterList = new List<System.Threading.CancellationTokenSource>();
             this.highPrecisionTimer.Start();
 		}
 
@@ -104,8 +106,6 @@ namespace Wolfje.Plugins.Jist.stdlib {
             }
         }
 
-       
-
         internal List<RecurringFunction> DumpTasks()
         {
             return recurList;
@@ -123,6 +123,8 @@ namespace Wolfje.Plugins.Jist.stdlib {
 
                 this.highPrecisionTimer.Stop();
                 this.highPrecisionTimer.Dispose();
+
+				this.CancelRunAfters();
 			}
 		}
 
@@ -130,10 +132,50 @@ namespace Wolfje.Plugins.Jist.stdlib {
 		/// Runs a javascript function after waiting.  Similar to setTimeout()
 		/// </summary>
 		[JavascriptFunction("run_after", "jist_run_after")]
-		public void RunAfterAsync(int AfterMilliseconds, JsValue Func, params object[] args) {
-            Task.Delay((int)AfterMilliseconds).ContinueWith((task) => {
-                engine.CallFunction(Func, null, args);
-            });
+		public void RunAfterAsync(int AfterMilliseconds, JsValue Func, params object[] args)
+		{
+			System.Threading.CancellationTokenSource source;
+
+			lock (runAfterList) {
+				source = new System.Threading.CancellationTokenSource();
+				runAfterList.Add(source);
+			}
+
+			Action runAfterFunc = async () => {
+				try {
+					await Task.Delay(AfterMilliseconds, source.Token);
+				} catch (TaskCanceledException) {
+					return;
+				}
+
+				if (source.Token.IsCancellationRequested == true) {
+					return;
+				}
+
+				try {
+					engine.CallFunction(Func, null, args);
+				} catch (TaskCanceledException) {
+				}
+
+				if (source.Token.IsCancellationRequested == false) {
+					lock (runAfterList) {
+						runAfterList.Remove(source);
+					}
+				}
+			};
+
+			Task.Factory.StartNew(runAfterFunc, source.Token);
+		}
+
+		internal void CancelRunAfters()
+		{
+			lock (runAfterList) {
+				foreach (var source in runAfterList) {
+					source.Cancel();
+				}
+
+				runAfterList.Clear();
+			}
 		}
 
         /// <summary>
@@ -157,6 +199,8 @@ namespace Wolfje.Plugins.Jist.stdlib {
                 recurList.Add(new RecurringFunction(Hours, Minutes, Seconds, Func));
             }
         }
+
+	
 	}
 
     /// <summary>
@@ -275,7 +319,9 @@ namespace Wolfje.Plugins.Jist.stdlib {
 
         public override string ToString()
         {
-            return string.Format("Task {0}: {1} secs, next in {2:hh:mm:ss}", this.RecurrenceID, this.Seconds, this.NextRunTime.Subtract(DateTime.UtcNow));
+			TimeSpan nextRunTime = this.NextRunTime.Subtract(DateTime.UtcNow);
+
+			return string.Format("Task {0}: {1} secs, next in {2}", this.RecurrenceID, this.Seconds, nextRunTime.ToString(@"hh\:mm\:ss"));
         }
     }
 }

@@ -14,11 +14,9 @@ namespace Wolfje.Plugins.Jist.Extensions {
 		public static T CallPrivateMethod<T>(this Type _type, bool StaticMember, string Name, params object[] Params)
 		{
 			BindingFlags flags = BindingFlags.NonPublic;
-			if (StaticMember) {
-				flags |= BindingFlags.Static;
-			} else {
-				flags |= BindingFlags.Instance;
-			}
+			
+			flags |= (StaticMember == true) ? BindingFlags.Static : BindingFlags.Instance;
+			
 			MethodInfo method = _type.GetMethod(Name, flags);
 			return (T)method.Invoke(StaticMember ? null : _type, Params);
 		}

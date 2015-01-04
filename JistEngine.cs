@@ -40,6 +40,7 @@ namespace Wolfje.Plugins.Jist {
 		public stdlib.std stdLib;
         public stdlib.tshock stdTshock;
         public stdlib.stdtask stdTask;
+        public stdlib.stdhook stdHook;
 
 		public JistEngine(JistPlugin parent)
 		{
@@ -47,10 +48,10 @@ namespace Wolfje.Plugins.Jist {
 			this.plugin = parent;
 			this.scriptContainer = new ScriptContainer(this);
             ServerApi.Hooks.GamePostInitialize.Register(plugin, Game_PostInitialize);
-            PercentChanged += (sender, args) => {
-                ConsoleEx.WriteBar(args);
-            };
+            PercentChanged += (sender, args) => ConsoleEx.WriteBar(args);
 		}
+
+        public JistPlugin PluginInstance { get { return plugin; } }
 
         /// <summary>
         /// Occurs when TerrariaServer has loaded the map.
@@ -92,7 +93,7 @@ namespace Wolfje.Plugins.Jist {
 			}
 
 			totalLoadingItems = ScriptsCount() * 2 + 5;
-            this.jsEngine = new Engine(o => { o.AllowClr(); });
+            this.jsEngine = new Engine(o => o.AllowClr());
             RaisePercentChangedEvent("Engine");
             
             /*
@@ -143,6 +144,7 @@ namespace Wolfje.Plugins.Jist {
 			LoadLibrary((stdLib = new stdlib.std(this)));
 			LoadLibrary((stdTshock = new stdlib.tshock(this)));
             LoadLibrary((stdTask = new stdlib.stdtask(this)));
+            LoadLibrary((stdHook = new stdlib.stdhook(this)));
 		}
 
 		/// <summary>
@@ -326,7 +328,7 @@ namespace Wolfje.Plugins.Jist {
 			/*
 			 * look for JS methods in the type
 			 */
-			foreach (var jsFunction in type.GetMethods().Where(i => i.GetCustomAttributes(true).OfType<JavascriptFunctionAttribute>().Count() > 0)) {
+			foreach (var jsFunction in type.GetMethods().Where(i => i.GetCustomAttributes(true).OfType<JavascriptFunctionAttribute>().Any())) {
 				if (instance == null && jsFunction.IsStatic == false
                     || (jsAttribute = jsFunction.GetCustomAttributes(true).OfType<JavascriptFunctionAttribute>().FirstOrDefault()) == null) {
 					continue;
@@ -400,6 +402,7 @@ namespace Wolfje.Plugins.Jist {
 				this.stdLib.Dispose();
 				this.stdTshock.Dispose();
                 this.stdTask.Dispose();
+                this.stdHook.Dispose();
                 ServerApi.Hooks.GamePostInitialize.Deregister(plugin, Game_PostInitialize);
 			}
 		}

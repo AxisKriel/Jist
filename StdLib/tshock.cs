@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Wolfje.Plugins.Jist.Framework;
 using Wolfje.Plugins.Jist.Extensions;
+using TShockAPI.DB;
 
 namespace Wolfje.Plugins.Jist.stdlib {
 	/// <summary>
@@ -30,13 +31,13 @@ namespace Wolfje.Plugins.Jist.stdlib {
 		public TShockAPI.DB.Region GetRegion(object region)
 		{
 			TShockAPI.DB.Region reg = null;
-
+            
 			if (region == null) {
 				return null;
 			}
 
 			if (region is TShockAPI.DB.Region) {
-				return region;
+				return region as TShockAPI.DB.Region;
 			}
 
 			if (region is string) {
@@ -50,14 +51,34 @@ namespace Wolfje.Plugins.Jist.stdlib {
 			return null;
 		}
 
+		[JavascriptFunction("tshock_player_regions")]
+		public Region[] PlayerInRegions(object PlayerRef)
+		{
+			TShockAPI.TSPlayer player;
+			List<Region> regionList = new List<Region>();
+
+			if ((player = GetPlayer(PlayerRef)) == null) {
+				return null;
+			}
+
+			foreach (Region region in TShockAPI.TShock.Regions.ListAllRegions(Terraria.Main.worldID.ToString())) {
+				if (IsPlayerInRegion(player, region) == false) {
+					continue;
+				}
+				regionList.Add(region);
+			}
+
+			return regionList.Count == 0 ? null : regionList.ToArray();
+		}
+
 		[JavascriptFunction("tshock_player_in_region")]
 		public bool IsPlayerInRegion(object playerRef, object regionRef)
 		{
 			TShockAPI.TSPlayer player;
-			TShockAPI.DB.Region region;
+			Region region;
 
-			if (player == null
-			    || region == null
+			if (playerRef == null
+				|| regionRef == null
 			    || (player = GetPlayer(playerRef)) == null
 			    || (region = GetRegion(regionRef)) == null) {
 				return false;

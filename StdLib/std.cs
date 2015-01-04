@@ -3,8 +3,10 @@ using Jint.Runtime;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
@@ -14,6 +16,7 @@ namespace Wolfje.Plugins.Jist.stdlib {
     public class std : stdlib_base {
         protected readonly Random randomGenerator = new Random();
         protected readonly object __rndLock = new object();
+		protected readonly Regex csvRegex = new Regex("(?<=^|,)(\"(?:[^\"]|\"\")*\"|[^,]*)");
 
         public std(JistEngine engine)
             : base(engine)
@@ -102,6 +105,46 @@ namespace Wolfje.Plugins.Jist.stdlib {
             }
         }
 
+		[JavascriptFunction("jist_file_read_lines")]
+		public string[] FileReadLines(string path)
+		{
+			string[] lines;
 
+			if (File.Exists(path) == false) {
+				return null;
+			}
+
+			try {
+				lines = File.ReadAllLines(path);
+			} catch {
+				return null;
+			}
+
+			return lines;
+		}
+
+		[JavascriptFunction("jist_parse_csv")]
+		public string[] ReadCSV(string line)
+		{
+			MatchCollection matches;
+			Match match;
+			string[] lines;
+
+			if (string.IsNullOrEmpty(line) == true
+				|| (matches = csvRegex.Matches(line)) == null) {
+				return null;
+			}
+
+			lines = new string[matches.Count];
+			for (int i = 0; i < lines.Length; i++) {
+				if ((match = matches[i]) == null) {
+					continue;
+				}
+
+				lines[i] = match.Value;
+			}
+
+			return lines;
+		}
     }
 }
