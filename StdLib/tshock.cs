@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 using Wolfje.Plugins.Jist.Framework;
 using Wolfje.Plugins.Jist.Extensions;
 using TShockAPI.DB;
+using Jint.Native;
+using Jint.Native.Object;
+using TShockAPI;
 
 namespace Wolfje.Plugins.Jist.stdlib {
 	/// <summary>
@@ -336,6 +339,34 @@ namespace Wolfje.Plugins.Jist.stdlib {
 		{
 			return TShockAPI.TSPlayer.Server;
 		}
+
+		[JavascriptFunction("tshock_create_npc")]
+		public KeyValuePair<int, Terraria.NPC> CreateNPC(int x, int y, int type)
+		{
+			int index = Terraria.NPC.NewNPC(x, y, type);
+			Terraria.NPC npc;
+
+			if ((npc = Terraria.Main.npc.ElementAtOrDefault(index)) == null) {
+				return new KeyValuePair<int, Terraria.NPC>(-1, null);
+			}
+
+			//Terraria.Main.npc[index].SetDefaults(npc.type, -1f);
+			Terraria.Main.npc[index].SetDefaults(npc.name);
+			//Terraria.Main.npcLifeBytes[index] = 4;
+
+			return new KeyValuePair<int, Terraria.NPC>(index, npc);
+		}
+
+		[JavascriptFunction("tshock_clear_tile_in_range")]
+		public Point ClearTileInRange(int x, int y, int rx, int ry)
+		{
+			Point p = new Point();
+
+			TShock.Utils.GetRandomClearTileWithInRange(x, y, rx, ry, out p.X, out p.Y);
+
+			return p;
+		}
+
 
 		/// <summary>
 		/// Parses colour from a range of input types and returns a strongly-

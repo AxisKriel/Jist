@@ -93,7 +93,8 @@ namespace Wolfje.Plugins.Jist {
 			}
 
 			totalLoadingItems = ScriptsCount() * 2 + 5;
-            this.jsEngine = new Engine(o => o.AllowClr());
+            this.jsEngine = new Engine(o => o.AllowClr(typeof(Terraria.Main).Assembly, 
+				typeof(TShockAPI.TShock).Assembly));
             RaisePercentChangedEvent("Engine");
             
             /*
