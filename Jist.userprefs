@@ -1,9 +1,14 @@
-﻿<Properties>
+﻿<Properties StartupItem="Jist.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="StdLib/tshock.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="JistEngine.cs">
     <Files>
-      <File FileName="StdLib/tshock.cs" Line="46" Column="18" />
-      <File FileName="References/TShock/TShockAPI/DB/RegionManager.cs" Line="627" Column="19" />
+      <File FileName="StdLib/tshock.cs" Line="43" Column="42" />
+      <File FileName="References/TShock/TShockAPI/DB/RegionManager.cs" Line="1" Column="1" />
+      <File FileName="StdLib/stdhook.cs" Line="1" Column="1" />
+      <File FileName="References/TShock/TShockAPI/Commands.cs" Line="1" Column="1" />
+      <File FileName="Extensions/TSPlayer.Extensions.cs" Line="1" Column="1" />
+      <File FileName="JistPlugin.cs" Line="1" Column="1" />
+      <File FileName="JistEngine.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

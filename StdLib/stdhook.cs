@@ -121,9 +121,7 @@ namespace Wolfje.Plugins.Jist.stdlib {
             this.enabled = true;
             this.collection = collection;
             this.pluginInstance = engine.PluginInstance;
-            this.handler = (args) => {
-                engine.CallFunction(func, this, args);
-            };
+            this.handler = (args) => engine.CallFunction(func, this, args);
 
             collection.Register(engine.PluginInstance, handler);
         }

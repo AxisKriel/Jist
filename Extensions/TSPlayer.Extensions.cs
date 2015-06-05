@@ -19,7 +19,7 @@ namespace Wolfje.Plugins.Jist.Extensions {
 		/// <summary>
 		/// This is a copy of TShocks handlecommand method, sans the permission checks
 		/// </summary>
-		public static bool PermissionlessInvoke(this TShockAPI.TSPlayer player, string text)
+		public static bool PermissionlessInvoke(this TShockAPI.TSPlayer player, string text, bool silent = false)
 		{
 			IEnumerable<TShockAPI.Command> cmds;
 			List<string> args;
@@ -56,7 +56,7 @@ namespace Wolfje.Plugins.Jist.Extensions {
 				if (!cmd.AllowServer && !player.RealPlayer) {
 					player.SendErrorMessage("You must use this command in-game.");
 				} else {
-					if (cmd.DoLog)
+					if (cmd.DoLog && silent == false)
 						TShockAPI.TShock.Utils.SendLogs(string.Format("{0} executed: /{1}.", player.Name, cmdText), Color.Red);
 					cmd.RunWithoutPermissions(cmdText, player, args);
 				}

@@ -10,11 +10,11 @@ namespace Wolfje.Plugins.Jist.Extensions {
         /// <summary>
         /// Invokes a command ignoring permissions
         /// </summary>
-        public static bool RunWithoutPermissions(this TShockAPI.Command cmd, string msg, TShockAPI.TSPlayer ply, List<string> parms) {
+		public static bool RunWithoutPermissions(this TShockAPI.Command cmd, string msg, TShockAPI.TSPlayer ply, List<string> parms, bool silent = false) {
             try {
                 TShockAPI.CommandDelegate cmdDelegateRef = cmd.CommandDelegate;
 
-                cmdDelegateRef(new TShockAPI.CommandArgs(msg, ply, parms));
+                cmdDelegateRef(new TShockAPI.CommandArgs(msg, silent, ply, parms));
             } catch (Exception e) {
                 ply.SendErrorMessage("Command failed, check logs for more details.");
                 TShockAPI.Log.Error(e.ToString());

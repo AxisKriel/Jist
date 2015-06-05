@@ -219,6 +219,52 @@ namespace Wolfje.Plugins.Jist.stdlib {
 		}
 
 		/// <summary>
+		/// Javsacript function: tshock_exec_silent(player, command) : boolean
+		/// 
+		/// Impersonates a player and executes the specified command
+		/// as if it was comming from them, and returns true if the
+		/// invoke of the command was successful, false if there was an
+		/// error or an exception.
+		/// 
+		/// There are no permission checks on this method, so the command
+		/// will unconditionally be executed, think of this as a super-
+		/// admin mechanism.
+		/// </summary>
+		[JavascriptFunction("tshock_exec_silent")]
+		public bool ExecuteCommandSilent(object Player, object Command)
+		{
+			TShockAPI.TSPlayer p = null;
+			string commandToExecute = "";
+
+			if ((p = GetPlayer(Player)) == null) {
+				return false;
+			}
+
+			try {
+				if (Command is List<string>) {
+					List<string> cmdList = Command as List<string>;
+					foreach (var param in cmdList.Skip(1)) {
+						commandToExecute += " " + param;
+					}
+				} else if (Command is string) {
+					commandToExecute = Command.ToString();
+				}
+
+				if (string.IsNullOrEmpty((commandToExecute = commandToExecute.Trim())) == true) {
+					return false;
+				}
+
+				p.PermissionlessInvoke(commandToExecute, true);
+
+				return true;
+			} catch (Exception) {
+				ScriptLog.ErrorFormat("tshock_exec_silent", "The command \"{0}\" failed.", commandToExecute.Trim());
+				return false;
+			}
+		}
+
+
+		/// <summary>
 		/// Javascript function: tshock_change_group(player, group) : boolean
 		/// 
 		/// Changes the provided player's group to the new group specified, and
@@ -365,6 +411,34 @@ namespace Wolfje.Plugins.Jist.stdlib {
 			TShock.Utils.GetRandomClearTileWithInRange(x, y, rx, ry, out p.X, out p.Y);
 
 			return p;
+		}
+
+		[JavascriptFunction("tshock_set_team")]
+		public void SetTeam(object player, int team)
+		{
+			TSPlayer p = GetPlayer(player);
+			p.SetTeam(team);
+		}
+
+		[JavascriptFunction("tshock_warp_find")]
+		public Warp FindWarp(string warp)
+		{
+			return TShock.Warps.Find(warp);
+		}
+
+		[JavascriptFunction("tshock_teleport_player")]
+		public void WarpPlayer(object player, float x, float y)
+		{
+			TSPlayer p = GetPlayer(player);
+
+			p.Teleport(x, y);
+		}
+
+		[JavascriptFunction("tshock_warp_player")]
+		public void WarpPlayer(object player, Warp warp)
+		{
+			TSPlayer p = GetPlayer(player);
+			p.Teleport(warp.Position.X * 16, warp.Position.Y * 16);
 		}
 
 
