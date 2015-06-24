@@ -10,6 +10,7 @@ using TShockAPI.DB;
 using Jint.Native;
 using Jint.Native.Object;
 using TShockAPI;
+using System.Dynamic;
 
 namespace Wolfje.Plugins.Jist.stdlib {
 	/// <summary>
@@ -22,25 +23,48 @@ namespace Wolfje.Plugins.Jist.stdlib {
 		protected readonly Regex htmlColourRegexShort = new Regex(@"#([0-9a-f])([0-9a-f])([0-9a-f])", RegexOptions.IgnoreCase);
 		protected readonly Regex rgbColourRegex = new Regex(@"((\d*),(\d*),(\d*))", RegexOptions.IgnoreCase);
 
-		public tshock(JistEngine engine) : base(engine)
+		public tshock(JistEngine engine) 
+			: base(engine)
 		{
 			this.Provides = "tshock";
+		}
+
+
+		[JavascriptFunction("tshock_sql_query")]
+		public void SQLQuery(string query, object[] parameters, JsValue func)
+		{
+			using (var reader = TShock.DB.QueryReader(query, parameters ?? new object[] { })) {
+
+				while (reader.Read()) {
+					dynamic r = new ExpandoObject();
+
+					for (int i = 0; i < reader.Reader.FieldCount; i++) {
+						(r as IDictionary<string, object>).Add(reader.Reader.GetName(i).Replace(' ', '_'), reader.Reader.GetValue(i));
+					}
+
+					engine.CallFunction(func, reader, r);
+				}
+			}
+		}
+
+		[JavascriptFunction("tshock_sql_execute")]
+		public int SQLQuery(string query, object[] parameters)
+		{
+			return TShock.DB.Query(query, parameters ?? new object[] { });
 		}
 
 		/// <summary>
 		/// Gets a TShock region by its name.
 		/// </summary>
 		[JavascriptFunction("tshock_get_region")]
-		public TShockAPI.DB.Region GetRegion(object region)
-		{
-			TShockAPI.DB.Region reg = null;
-            
+		public Region GetRegion(object region)
+		{ 
 			if (region == null) {
 				return null;
 			}
 
-			if (region is TShockAPI.DB.Region) {
-				return region as TShockAPI.DB.Region;
+			if (region is Region) {
+				return region as Region;
 			}
 
 			if (region is string) {

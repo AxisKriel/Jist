@@ -21,6 +21,12 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Externalconsole>true</Externalconsole>
+    <CustomCommands>
+      <CustomCommands>
+        <Command type="Execute" command="../ServerInstance4.2/TerrariaServer.exe" workingdir="../ServerInstance4.2/" externalConsole="True" />
+        <Command type="BeforeExecute" command="cp bin/Debug/Wolfje.Plugins.Jist.dll ../ServerInstance4.2/" />
+      </CustomCommands>
+    </CustomCommands>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -44,8 +50,11 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="HttpServer">
+      <HintPath>References\TShock\HttpBins\HttpServer.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>bin\Debug\Newtonsoft.Json.dll</HintPath>
+      <HintPath>packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -221,6 +230,7 @@
     <Compile Include="StdLib\tshock.cs" />
     <Compile Include="StdLib\Framework\IStdLib.cs" />
     <Compile Include="StdLib\Framework\stdlib_base.cs" />
+    <Compile Include="JistRestInterface.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="References\TShock\TerrariaServerAPI\TerrariaAPI-Server.csproj">
@@ -244,4 +254,7 @@
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(SolutionDir)\..\ServerInstance4.2\ServerPlugins" />
   </Target>
   <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
 </Project>

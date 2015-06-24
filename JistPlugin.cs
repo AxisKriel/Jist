@@ -16,6 +16,8 @@ namespace Wolfje.Plugins.Jist {
 		public override string Name { get { return "Jist"; } }
 		public override Version Version { get { return Assembly.GetExecutingAssembly().GetName().Version; } }
 
+		protected JistRestInterface _restInterface;
+
 		/// <summary>
 		/// Subscribe to this event to have the opportunity to load
 		/// functions into the JavaScript engine when it reloads.
@@ -28,6 +30,8 @@ namespace Wolfje.Plugins.Jist {
 			Order = 1;
 			Instance = new JistEngine(this);
 			TShockAPI.Commands.ChatCommands.Add(new TShockAPI.Command("jist.cmd", TShockAPI_JistChatCommand, "jist"));
+
+			ServerApi.Hooks.GameInitialize.Register(this, game_initialize);
 		}
 
 		private async void TShockAPI_JistChatCommand(TShockAPI.CommandArgs args)
@@ -77,6 +81,11 @@ namespace Wolfje.Plugins.Jist {
 		/// </summary>
 		public override void Initialize()
 		{
+		}
+
+		void game_initialize(EventArgs args)
+		{
+			_restInterface = new JistRestInterface(this);
 		}
 
 		protected override void Dispose(bool disposing)

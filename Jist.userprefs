@@ -1,18 +1,22 @@
 ﻿<Properties StartupItem="Jist.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="JistEngine.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="JistRestInterface.cs">
     <Files>
-      <File FileName="StdLib/tshock.cs" Line="43" Column="42" />
+      <File FileName="StdLib/tshock.cs" Line="14" Column="11" />
       <File FileName="References/TShock/TShockAPI/DB/RegionManager.cs" Line="1" Column="1" />
       <File FileName="StdLib/stdhook.cs" Line="1" Column="1" />
       <File FileName="References/TShock/TShockAPI/Commands.cs" Line="1" Column="1" />
       <File FileName="Extensions/TSPlayer.Extensions.cs" Line="1" Column="1" />
-      <File FileName="JistPlugin.cs" Line="1" Column="1" />
-      <File FileName="JistEngine.cs" Line="1" Column="1" />
+      <File FileName="JistPlugin.cs" Line="33" Column="37" />
+      <File FileName="JistRestInterface.cs" Line="12" Column="4" />
+      <File FileName="JistEngine.cs" Line="75" Column="42" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Breakpoint file="/home/tw/Dropbox/_dev/TShockPlugins/Jist/JistPlugin.cs" line="33" column="1" />
+      <Breakpoint file="/home/tw/Dropbox/_dev/TShockPlugins/Jist/JistRestInterface.cs" line="13" column="1" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>

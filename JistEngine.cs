@@ -12,6 +12,10 @@ using TerrariaApi.Server;
 using Jint.Runtime.Descriptors;
 using Jint.Runtime;
 using Jint.Native.Json;
+using TShockAPI;
+using Jint.Parser;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace Wolfje.Plugins.Jist {
 	/// <summary>
@@ -87,7 +91,7 @@ namespace Wolfje.Plugins.Jist {
 				try {
 					Directory.CreateDirectory(scriptsDir);
 				} catch {
-					TShockAPI.Log.ConsoleError("jist load: Could not create serverscripts directory");
+					TShock.Log.ConsoleError("jist load: Could not create serverscripts directory");
 					return;
 				}
 			}
@@ -112,6 +116,8 @@ namespace Wolfje.Plugins.Jist {
             await Task.Run(() => CreateScriptFunctions());
             RaisePercentChangedEvent("Functions");
 
+			ExecuteHardCodedScripts();
+
             /*
              * Load all scripts from disk, and preprocess them.
              * Result should be a reference-counted list of sc-
@@ -134,6 +140,40 @@ namespace Wolfje.Plugins.Jist {
             Console.WriteLine(" * Loaded {0} scripts", ScriptsCount());
             Console.ResetColor();
             Console.WriteLine();
+		}
+
+		protected void ExecuteHardCodedScripts()
+		{
+			jsEngine.Execute(@"dump = function(o) {
+    var s = '';
+
+    if (typeof(o) == 'undefined') return 'undefined';
+
+    if (typeof o.valueOf == 'undefined') return ""'valueOf()' is missing on '"" + (typeof o) + ""' - if you are inheriting from V8ManagedObject, make sure you are not blocking the property."";
+
+    if (typeof o.toString == 'undefined') return ""'toString()' is missing on '"" + o.valueOf() + ""' - if you are inheriting from V8ManagedObject, make sure you are not blocking the property."";
+
+    for (var p in o) {
+        var ov = '',
+            pv = '';
+
+        try {
+            ov = o.valueOf();
+        } catch (e) {
+            ov = '{error: ' + e.message + ': ' + dump(o) + '}';
+        }
+
+        try {
+            pv = o[p];
+        } catch (e) {
+            pv = e.message;
+        }
+
+        s += '* ' + ov + '.' + p + ' = (' + pv + ')\r\n';
+    }
+
+    return s;
+}");
 		}
 		
 		/// <summary>
@@ -237,20 +277,41 @@ namespace Wolfje.Plugins.Jist {
             if (jsEngine == null || string.IsNullOrEmpty(snippet) == true) {
                 return "undefined";
             }
-            try {
+            try { 
                 returnValue = jsEngine.GetValue(jsEngine.Execute(snippet).GetCompletionValue());
                 if (returnValue.Type == Types.None
                     || returnValue.Type == Types.Null
                     || returnValue.Type == Types.Undefined) {
                     return "undefined";
                 }
+			} catch (JavaScriptException jex) {
+				StringBuilder sb = new StringBuilder("JavaScript error: " + jex.Message + "\r\n");
+
+				//sb.AppendLine(string.Format(" at line {0} column {1}", jex.LineNumber, jex.Column));
+				//sb.AppendLine(jex.Location.Source);
+				sb.AppendLine(jex.StackTrace);
+
+				return sb.ToString();
+
+			} catch (ParserException pex) {
+				StringBuilder sb = new StringBuilder("JavaScript parser error: " + pex.Message + "\r\n");
+
+				sb.AppendLine(string.Format(" at line {0} column {1}", pex.LineNumber, pex.Column));
+				sb.AppendLine(pex.Source);
+				sb.AppendLine(pex.StackTrace);
+
+				return sb.ToString();
             } catch (Exception ex) {
-                ScriptLog.ErrorFormat("eval", "Error executing snippet:" + ex.Message);
-                return "undefined";
+				return ex.ToString();
             }
 
-            return TypeConverter.ToString(jsEngine.Json.Stringify(jsEngine.Json, 
-                Arguments.From(returnValue, Undefined.Instance, "  ")));
+			if (string.IsNullOrEmpty(returnValue.ToString()) == true) {
+				TShock.Log.ConsoleError("[jist eval] result of \"{0}\" is null", snippet);
+				return "undefined";
+			}
+
+			return returnValue.ToString();
+
         }
 
 		/// <summary>
@@ -381,9 +442,25 @@ namespace Wolfje.Plugins.Jist {
 			object t = thisObject ?? (object)this;
 			try {
 				return function.Invoke(JsValue.FromObject(jsEngine, t), args.ToJsValueArray(jsEngine));
+			} catch (JavaScriptException jex) {
+				StringBuilder sb = new StringBuilder("JavaScript error: " + jex.Message + "\r\n");
+
+				sb.AppendLine(string.Format(" at line {0} column {1}", jex.LineNumber, jex.Column));
+				sb.AppendLine(jex.Location.Source);
+				sb.AppendLine(jex.StackTrace);
+
+				TShock.Log.ConsoleError(sb.ToString());
+
+			} catch (ParserException pex) {
+				StringBuilder sb = new StringBuilder("JavaScript parser error: " + pex.Message + "\r\n");
+
+				sb.AppendLine(string.Format(" at line {0} column {1}", pex.LineNumber, pex.Column));
+				sb.AppendLine(pex.Source);
+				sb.AppendLine(pex.StackTrace);
+
+				TShock.Log.ConsoleError(sb.ToString());
 			} catch (Exception ex) {
-				ScriptLog.ErrorFormat("engine", "Error executing {0}: {1}",
-					function.ToString(), ex.ToString());
+				TShock.Log.ConsoleError(ex.ToString());
 			}
 
 			return JsValue.Undefined;
