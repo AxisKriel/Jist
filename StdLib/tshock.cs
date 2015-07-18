@@ -142,7 +142,7 @@ namespace Wolfje.Plugins.Jist.stdlib {
 					return player;
 				}
 
-				return TShockAPI.TShock.Players.FirstOrDefault(i => i != null && i.UserAccountName == PlayerRef.ToString());
+				return TShockAPI.TShock.Players.FirstOrDefault(i => i != null && i.User.Name == PlayerRef.ToString());
 			}
 
 			return null;
@@ -317,7 +317,7 @@ namespace Wolfje.Plugins.Jist.stdlib {
 			}
 
 			try {
-				u.Name = p.UserAccountName;
+				u.Name = p.User.Name;
 				TShockAPI.TShock.Users.SetUserGroup(u, g);
 			} catch (Exception ex) {
 				ScriptLog.ErrorFormat("tshock_change_group", "Group change failed: {0}", ex.Message);
