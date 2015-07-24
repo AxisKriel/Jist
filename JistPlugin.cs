@@ -8,7 +8,7 @@ using System.Reflection;
 using Wolfje.Plugins.Jist.Framework;
 
 namespace Wolfje.Plugins.Jist {
-	[ApiVersion(1, 19)]
+	[ApiVersion(1, 20)]
 	public class JistPlugin : TerrariaPlugin {
 		public static JistEngine Instance { get; protected set; }
 		public override string Author { get { return "Wolfje"; } }
